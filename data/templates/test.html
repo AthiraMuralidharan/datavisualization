@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+
+
+
+<style>
+    th{
+        color:#fff;
+            }
+</style>
+
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+
+            </script>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,
+                                        initial-scale=1">
+            <script src=
+        "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js">
+            </script>
+            <title>US Population Chart</title>
+        </head>
+
+    <body>
+
+
+        <div class="row">
+            <div class="col">
+                <div class="card card-body">
+                    <input id="search-input" class="form-control" type="text">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+
+
+
+            <table class="table table-striped">
+                <tr  class="bg-info">
+                    <th data-column="Nation" data-order="desc">Nation &#9650</th>
+                    <th data-column="Year" data-order="desc">Year &#9650</th>
+                    <th data-column="Population" data-order="desc">Population &#9650</th>
+                </tr>
+
+                <tbody id="myTable">
+
+                </tbody>
+            </table>
+
+            <canvas id="bar-chart" width="600" height="250">
+            </canvas>
+            <script>
+
+                getData();
+
+                async function getData() {
+                    const response = await fetch(
+                        'https://datausa.io/api/data?drilldowns=Nation&measures=Population');
+                    console.log(response);
+                    const data = await response.json();
+                    console.log(data);
+                    length = data.data.length;
+                    console.log(length);
+
+                    labels = [];
+                    values = [];
+                    for (i = 0; i < length; i++) {
+                        labels.push(data.data[i].Year);
+                        values.push(data.data[i].Population);
+                    }
+
+
+                    new Chart(document.getElementById("bar-chart"), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: "Population (millions)",
+                                    backgroundColor: ["#3e95cd",
+                                        "#8e5ea2",
+                                        "#3cba9f",
+                                        "#e8c3b9",
+                                        "#c45850",
+                                        "#CD5C5C",
+                                        "#40E0D0"],
+                                    data: values
+                                }
+                            ]
+                        },
+                        options: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'U.S population'
+                            }
+                        }
+                    });
+
+
+
+                    var myArray = data.data
+
+                    $('th').on('click', function(){
+                        var column = $(this).data('column')
+                        var order = $(this).data('order')
+                        var text = $(this).html()
+                        text = text.substring(0, text.length - 1)
+
+                        if(order == 'desc'){
+                            $(this).data('order', "asc")
+                            myArray = myArray.sort((a,b) => a[column] > b[column] ? 1 : -1)
+                            text += '&#9660'
+
+                        }else{
+                            $(this).data('order', "desc")
+                            myArray = myArray.sort((a,b) => a[column] < b[column] ? 1 : -1)
+                            text += '&#9650'
+
+                        }
+                        $(this).html(text)
+                        buildTable(myArray)
+                    })
+
+
+
+
+
+
+                    $('#search-input').on('keyup', function(){
+                        var value = $(this).val()
+                        console.log('Value:', value)
+                        var data = searchTable(value, myArray)
+                        buildTable(data)
+                    })
+
+
+                    function searchTable(value, data){
+                        var filterData = []
+                        for (var i=0; i<data.length; i++){
+                            value = value
+                            var Year = data[i].Year
+
+                            if(Year.includes(value)){
+                                filterData.push(data[i])
+
+                            }
+
+                        }
+                        for (var i=0; i<data.length; i++){
+                           var Population=data[i].Population
+                           if(value == Population){
+                              filterData.push(data[i])
+                           }
+                        }
+                        return filterData
+                    }
+
+
+
+                    buildTable(data.data)
+
+                    function buildTable(data){
+                        var table = document.getElementById("myTable")
+                        table.innerHTML = ''
+                        for (var i = 0; i < data.length; i++){
+                            var row = `<tr>
+                                            <td>${data[i].Nation}</td>
+                                            <td>${data[i].Year}</td>
+                                            <td>${data[i].Population}</td>
+
+
+                                    </tr>`
+                            table.innerHTML += row
+
+
+                        }
+                    }
+
+                }
+
+            </script>
+
+    </body>>
+
+</html>
